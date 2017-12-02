@@ -7,30 +7,42 @@ import codecs
 DATA_DIR= 'C:/work/web/BIlboards-data/nubium/'
 # datovy csv subor
 #DATA_FILE = 'C:/work/web/BIlboards-data/nubium/Nubium-ponuka-1765525-vsetky.csv'
-DATA_FILE = 'C:/work/web/BIlboards-data/nubium/Nubium-pokus.csv'
+#DATA_FILE = 'C:/work/web/BIlboards-data/nubium/Nubium-pokus.csv'
+DATA_FILE = 'C:/work/web/BIlboards-data/nubium/Nubium-ponukat1.csv'
 # error file
 ERR_FILE = open('upl_err.csv', 'wb')
 err_writer = csv.writer(ERR_FILE, delimiter=';')
 
-
-URL='http://localhost:4001/{0}'
-
-def login():
-    auth = {
+prod_cfg = {
+    'URL': 'https://shrouded-atoll-81501.herokuapp.com/{0}',
+    'auth': {
+        'email': 'admin',
+        'password': 'Z@h0rsk@bystr1c@'
+    }
+}
+pgdev_cfg = {
+    'URL': 'http://localhost:4001/{0}',
+    'auth': {
         'email': 'admin',
         'password': 'admin123'
     }
-    r = requests.post(URL.format('api/login'), data=auth)
+}
+
+#cfg = prod_cfg
+cfg = pgdev_cfg
+
+def login():
+    r = requests.post(cfg['URL'].format('api/login'), data=cfg['auth'])
     print r.text
     print r.cookies
     return r.cookies
 
 def get_bilboard(auth):
-    r = requests.get(URL.format('api/bilboard/11'), cookies=auth)
+    r = requests.get(cfg['URL'].format('api/bilboard/11'), cookies=auth)
     print r.text
 
 def upload(auth, data, files):
-    resp = requests.post(URL.format('api/bilboards'), cookies=auth, files=files)
+    resp = requests.post(cfg['URL'].format('api/bilboards'), cookies=auth, files=files)
     print resp.text
     return resp.ok
 
@@ -56,9 +68,9 @@ with codecs.open(DATA_FILE, mode='r') as ff:
             photo = '{0}foto/{1}.jpg'.format(DATA_DIR, native_id_tmp.replace('/','-'))
             mapa = '{0}mapy/{1}.jpg'.format(DATA_DIR, native_id_tmp.replace('/','-'))
             if os.path.isfile(photo) == True:
-                files['picture_url'] = open(photo,'rb')
+                files['picture_file'] = open(photo,'rb')
             if os.path.isfile(mapa) == True:
-                files['map_picture_url'] = open(mapa,'rb')
+                files['map_picture_file'] = open(mapa,'rb')
             res = upload(cookies, None, files)
             if res == False:
                 err_writer.writerow([native_id_tmp, None, None])
