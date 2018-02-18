@@ -21,7 +21,7 @@ FORMAT = '%(asctime)-15s %(levelname)s %(module)-8s %(message)s'
 logging.basicConfig(filename='basic.log',level=logging.DEBUG, format=FORMAT)
 
 def run():
-    uploader.set_cfg('pgdev')
+    uploader.set_cfg('prod')
     print uploader.cfg
     s = requests.Session()
     cookies = uploader.login(s)
@@ -44,14 +44,16 @@ def run():
                         'lng':(None, row[10]),
                     }
                     #files = dict()
-                    '''
-                    photo = '{0}/{1}'.format(DATA_DIR, row[51])
-                    mapa = '{0}/{1}'.format(DATA_DIR, row[52])
+                    photo = '{0}/Images/{1}.jpg'.format(DATA_DIR, row[0])
+                    mapa = '{0}/Maps/{1}.jpg'.format(DATA_DIR, row[0])
                     if os.path.isfile(photo) == True:
                         files['picture_file'] = open(photo,'rb')
+                    else:
+                        photo = '{0}/Images/{1}_1.jpg'.format(DATA_DIR, row[0])
+                        if os.path.isfile(photo) == True:
+                            files['picture_file'] = open(photo,'rb')
                     if os.path.isfile(mapa) == True:
                         files['map_picture_file'] = open(mapa,'rb')
-                    '''
                     uploader.upload(s, cookies, files)
                 except Exception as e:
                     logging.exception('Chyba')
